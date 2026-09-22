@@ -1,382 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Harry Bougard Tools - Target Curve Lab</title>
 
-  <title>Program Target Analyzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
 <div class="app">
 
-  <!-- =========================================================
-       HEADER
-  ========================================================== -->
-
-  <header class="topbar">
-
-    <div class="brand">
-
-      <div class="brand-mark">
-        <svg viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M7 31 C12 31, 12 17, 18 17 S24 31, 30 31 S36 12, 41 12"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.4"/>
-          <circle cx="7" cy="31" r="2.5" fill="currentColor"/>
-          <circle cx="41" cy="12" r="2.5" fill="currentColor"/>
-        </svg>
-      </div>
-
-      <div>
-        <div class="brand-title">PROGRAM TARGET ANALYZER</div>
-        <div class="brand-sub">HARRY BOUGARD TOOLS / SPECTRAL REFERENCE ENGINE</div>
-      </div>
-
+<header>
+    <div>
+        <h1>Harry Bougard Tools</h1>
+        <p>Target Curve Lab</p>
     </div>
+</header>
 
-    <div class="top-status">
-      <span class="status-led" id="statusLed"></span>
-      <span id="statusText">READY</span>
-    </div>
+<div class="layout">
 
-  </header>
+    <section class="panel controls">
 
+        <h2>Curva objetivo</h2>
 
-  <!-- =========================================================
-       MAIN
-  ========================================================== -->
-
-  <main class="main-grid">
-
-    <!-- =======================================================
-         LEFT PANEL
-    ======================================================== -->
-
-    <section class="control-panel">
-
-      <div class="panel-section dataset-section">
-
-        <div class="section-title">
-          <span>DATASET</span>
-          <span class="section-code">01</span>
-        </div>
-
-        <label class="field-label" for="genreSelect">
-          SOURCE GENRE
-        </label>
-
-        <select id="genreSelect">
-          <option value="techno">Techno</option>
-          <option value="darkwave">Darkwave</option>
-          <option value="new wave">New Wave</option>
-          <option value="post-punk">Post-Punk</option>
-          <option value="synthwave">Synthwave</option>
-          <option value="custom">Custom...</option>
+        <select id="presetSelect">
+            <option>L-Acoustics Contour</option>
+            <option>Flat</option>
+            <option>Techno</option>
+            <option>Darkwave</option>
+            <option>Post-Punk</option>
+            <option>Synthwave</option>
         </select>
 
-        <input
-          id="customGenre"
-          class="custom-input hidden"
-          type="text"
-          placeholder="e.g. industrial techno"
-          autocomplete="off"
-        >
-
-        <div class="dataset-options">
-
-          <div class="mini-control">
-            <span>MAX TRACKS</span>
-            <select id="trackLimit">
-              <option value="10">10</option>
-              <option value="15">15</option>
-              <option value="25" selected>25</option>
-            </select>
-          </div>
-
-          <div class="mini-control">
-            <span>STATISTIC</span>
-            <select id="statistic">
-              <option value="median" selected>MEDIAN</option>
-              <option value="mean">MEAN</option>
-            </select>
-          </div>
-
-        </div>
-
-        <button id="analyzeBtn" class="primary-button">
-          GENERATE PROGRAM TARGET
+        <button id="loadPreset">
+            Cargar curva
         </button>
 
-      </div>
+        <button id="generateNoise">
+            Generar ruido
+        </button>
 
+        <button id="downloadWav">
+            Exportar WAV
+        </button>
 
-      <!-- =====================================================
-           SYSTEM TARGET
-      ====================================================== -->
+        <button id="downloadTxt">
+            Exportar TXT
+        </button>
 
-      <div class="panel-section">
+        <h2>Puntos</h2>
 
-        <div class="section-title">
-          <span>SYSTEM TARGET</span>
-          <span class="section-code">02</span>
-        </div>
-
-        <div class="sub-caption">
-          Editable reference curve used for comparison.
-        </div>
-
-        <textarea id="systemCurve" spellcheck="false">20 12
-40 12
-60 10
-100 5
-200 0
-1000 0
-2000 -0.5
-5000 -2
-10000 -3.5
-20000 -6</textarea>
-
-        <div class="curve-help">
-          Format: <strong>frequency Hz&nbsp;&nbsp;gain dB</strong>
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           MIX
-      ====================================================== -->
-
-      <div class="panel-section">
-
-        <div class="section-title">
-          <span>PROGRAM / SYSTEM</span>
-          <span class="section-code">03</span>
-        </div>
-
-        <div class="comparison-readout">
-
-          <div>
-            <span class="readout-label">LOW</span>
-            <strong id="lowDelta">—</strong>
-          </div>
-
-          <div>
-            <span class="readout-label">MID</span>
-            <strong id="midDelta">—</strong>
-          </div>
-
-          <div>
-            <span class="readout-label">HIGH</span>
-            <strong id="highDelta">—</strong>
-          </div>
-
-        </div>
-
-        <div class="tolerance-row">
-
-          <label>
-            TOLERANCE
-            <select id="tolerance">
-              <option value="1">±1 dB</option>
-              <option value="2" selected>±2 dB</option>
-              <option value="3">±3 dB</option>
-              <option value="4">±4 dB</option>
-            </select>
-          </label>
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           ACTIONS
-      ====================================================== -->
-
-      <div class="panel-section action-section">
-
-        <div class="section-title">
-          <span>EXPORT</span>
-          <span class="section-code">04</span>
-        </div>
-
-        <div class="button-grid">
-
-          <button id="exportTxt">TXT</button>
-          <button id="exportCsv">CSV</button>
-          <button id="exportJson">JSON</button>
-          <button id="exportPng">GRAPH</button>
-
-        </div>
-
-      </div>
+        <textarea id="curveData"></textarea>
 
     </section>
 
+    <section class="panel graph">
 
-    <!-- =======================================================
-         RIGHT ANALYSIS PANEL
-    ======================================================== -->
-
-    <section class="analysis-panel">
-
-      <div class="analysis-header">
-
-        <div>
-
-          <div class="analysis-title" id="analysisTitle">
-            NO DATASET
-          </div>
-
-          <div class="analysis-subtitle" id="analysisSubtitle">
-            Select a genre and generate a program target.
-          </div>
-
-        </div>
-
-        <div class="analysis-metrics">
-
-          <div>
-            <span>TRACKS</span>
-            <strong id="trackCount">0</strong>
-          </div>
-
-          <div>
-            <span>ANALYZED</span>
-            <strong id="analyzedCount">0</strong>
-          </div>
-
-          <div>
-            <span>CONFIDENCE</span>
-            <strong id="confidence">—</strong>
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           GRAPH
-      ====================================================== -->
-
-      <div class="graph-frame">
-
-        <canvas id="spectrumCanvas"></canvas>
-
-        <div class="graph-y-label top">+12 dB</div>
-        <div class="graph-y-label center">0 dB</div>
-        <div class="graph-y-label bottom">−12 dB</div>
-
-        <div class="graph-x-label left">20</div>
-        <div class="graph-x-label x100">100</div>
-        <div class="graph-x-label x1k">1k</div>
-        <div class="graph-x-label x10k">10k</div>
-        <div class="graph-x-label right">20k Hz</div>
-
-        <div class="legend">
-
-          <span>
-            <i class="legend-program"></i>
-            PROGRAM TARGET
-          </span>
-
-          <span>
-            <i class="legend-system"></i>
-            SYSTEM TARGET
-          </span>
-
-          <span>
-            <i class="legend-range"></i>
-            P25–P75
-          </span>
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           DATA TABLE
-      ====================================================== -->
-
-      <div class="data-strip">
-
-        <div class="data-card">
-          <span>DATA SOURCE</span>
-          <strong id="dataSource">—</strong>
-        </div>
-
-        <div class="data-card">
-          <span>METHOD</span>
-          <strong id="methodText">—</strong>
-        </div>
-
-        <div class="data-card">
-          <span>FREQUENCY MODEL</span>
-          <strong>BARK / 27 BANDS</strong>
-        </div>
-
-        <div class="data-card">
-          <span>LOUDNESS NORMALIZATION</span>
-          <strong>SPECTRAL SHAPE</strong>
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           LOG
-      ====================================================== -->
-
-      <div class="console">
-
-        <div class="console-header">
-          <span>ENGINE LOG</span>
-          <button id="clearLog">CLEAR</button>
-        </div>
-
-        <div id="logOutput" class="console-body">
-          <div>&gt; Program Target Analyzer initialized.</div>
-          <div>&gt; Awaiting dataset.</div>
-        </div>
-
-      </div>
+        <canvas id="curveChart"></canvas>
 
     </section>
-
-  </main>
-
-
-  <!-- =========================================================
-       FOOTER
-  ========================================================== -->
-
-  <footer class="footer">
-
-    <div>
-      MUSICBRAINZ METADATA / ACOUSTICBRAINZ LOW-LEVEL DATA
-    </div>
-
-    <div>
-      PROGRAM TARGET ≠ UNIVERSAL MIXING STANDARD
-    </div>
-
-  </footer>
 
 </div>
 
-<script src="app.js"></script>
+</div>
+
+<script src="script.js"></script>
 
 </body>
 </html>
